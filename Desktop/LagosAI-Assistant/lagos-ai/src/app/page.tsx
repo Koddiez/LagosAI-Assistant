@@ -49,6 +49,13 @@ export default function Home() {
 
     const checkAuth = async () => {
       try {
+        // For development, skip auth checks and show landing page
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Development mode: Skipping auth checks, showing landing page')
+          setLoading(false)
+          return
+        }
+
         const { data: { user }, error: authError } = await supabase.auth.getUser()
 
         if (authError) {

@@ -11,26 +11,27 @@ const updateAgentSchema = z.object({
 })
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const supabase = await createRouteHandlerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+   request: NextRequest,
+   { params }: { params: Promise<{ id: string }> }
+ ) {
+   try {
+     const resolvedParams = await params
+     const supabase = await createRouteHandlerClient()
+     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
-        { status: 401 }
-      )
-    }
+     if (authError || !user) {
+       return NextResponse.json(
+         { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
+         { status: 401 }
+       )
+     }
 
-    const { data: agent, error } = await supabase
-      .from('agents')
-      .select('id, user_id, name, tone_style, whatsapp_number, preferences, is_active, created_at, updated_at')
-      .eq('id', params.id)
-      .eq('user_id', user.id)
-      .single()
+     const { data: agent, error } = await supabase
+       .from('agents')
+       .select('id, user_id, name, tone_style, whatsapp_number, preferences, is_active, created_at, updated_at')
+       .eq('id', resolvedParams.id)
+       .eq('user_id', user.id)
+       .single()
 
     if (error) {
       if (error.code === 'PGRST116') {
@@ -57,43 +58,44 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const supabase = await createRouteHandlerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+   request: NextRequest,
+   { params }: { params: Promise<{ id: string }> }
+ ) {
+   try {
+     const resolvedParams = await params
+     const supabase = await createRouteHandlerClient()
+     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
-        { status: 401 }
-      )
-    }
+     if (authError || !user) {
+       return NextResponse.json(
+         { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
+         { status: 401 }
+       )
+     }
 
-    const body = await request.json()
-    const validationResult = updateAgentSchema.safeParse(body)
+     const body = await request.json()
+     const validationResult = updateAgentSchema.safeParse(body)
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: validationResult.error.issues
-          }
-        },
-        { status: 400 }
-      )
-    }
+     if (!validationResult.success) {
+       return NextResponse.json(
+         {
+           error: {
+             message: 'Validation error',
+             code: 'VALIDATION_ERROR',
+             details: validationResult.error.issues
+           }
+         },
+         { status: 400 }
+       )
+     }
 
-    // First check if the agent belongs to the user
-    const { data: existingAgent, error: checkError } = await supabase
-      .from('agents')
-      .select('id')
-      .eq('id', params.id)
-      .eq('user_id', user.id)
-      .single()
+     // First check if the agent belongs to the user
+     const { data: existingAgent, error: checkError } = await supabase
+       .from('agents')
+       .select('id')
+       .eq('id', resolvedParams.id)
+       .eq('user_id', user.id)
+       .single()
 
     if (checkError || !existingAgent) {
       return NextResponse.json(
@@ -110,7 +112,7 @@ export async function PUT(
     const { data: agent, error } = await supabase
       .from('agents')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .eq('user_id', user.id)
       .select()
       .single()
@@ -134,27 +136,28 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const supabase = await createRouteHandlerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+   request: NextRequest,
+   { params }: { params: Promise<{ id: string }> }
+ ) {
+   try {
+     const resolvedParams = await params
+     const supabase = await createRouteHandlerClient()
+     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
-        { status: 401 }
-      )
-    }
+     if (authError || !user) {
+       return NextResponse.json(
+         { error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } },
+         { status: 401 }
+       )
+     }
 
-    // First check if the agent belongs to the user
-    const { data: existingAgent, error: checkError } = await supabase
-      .from('agents')
-      .select('id')
-      .eq('id', params.id)
-      .eq('user_id', user.id)
-      .single()
+     // First check if the agent belongs to the user
+     const { data: existingAgent, error: checkError } = await supabase
+       .from('agents')
+       .select('id')
+       .eq('id', resolvedParams.id)
+       .eq('user_id', user.id)
+       .single()
 
     if (checkError || !existingAgent) {
       return NextResponse.json(
@@ -166,7 +169,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('agents')
       .delete()
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .eq('user_id', user.id)
 
     if (error) {

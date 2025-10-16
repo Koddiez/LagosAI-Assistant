@@ -1,11 +1,23 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
-import DashboardLayout from '@/components/layout/dashboard-layout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle, 
+  CardFooter 
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   MessageSquare,
   Zap,
@@ -14,30 +26,42 @@ import {
   Bot,
   PlayCircle,
   Upload,
-  AlertTriangle
-} from 'lucide-react'
-import Link from 'next/link'
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  XCircle,
+  MessageCircle,
+  User,
+  Phone
+} from 'lucide-react';
 
 interface DashboardStats {
-  totalMessages: number
-  autoReplies: number
-  responseTime: number
-  satisfactionRate: number
+  totalMessages: number;
+  autoReplies: number;
+  responseTime: number;
+  satisfactionRate: number;
+  activeConversations: number;
+  resolutionRate: number;
 }
 
 interface Agent {
-  id: string
-  name: string
-  is_active: boolean
-  whatsapp_number?: string
+  id: string;
+  name: string;
+  is_active: boolean;
+  whatsapp_number?: string;
+  last_active?: string;
+  status?: 'online' | 'offline' | 'away';
+  avatar?: string;
 }
 
 interface RecentMessage {
-  id: string
-  direction: 'inbound' | 'outbound'
-  content?: string
-  timestamp: string
-  status: string
+  id: string;
+  direction: 'inbound' | 'outbound';
+  content?: string;
+  timestamp: string;
+  status: 'delivered' | 'read' | 'failed' | 'sent';
+  contact_name?: string;
+  contact_avatar?: string;
 }
 
 export default function DashboardPage() {

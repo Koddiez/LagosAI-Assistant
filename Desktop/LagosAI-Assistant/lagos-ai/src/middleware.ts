@@ -2,6 +2,14 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // For development mode, skip all middleware auth checks
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Middleware: Development mode - skipping auth checks')
+    return NextResponse.next({
+      request,
+    })
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -42,13 +50,21 @@ export async function middleware(request: NextRequest) {
     const { data: { user: authUser }, error } = await supabase.auth.getUser()
     if (error) {
       console.error('Middleware: Auth error:', error)
-      // Allow the request to continue without auth checks
+      // For development, allow the request to continue without auth checks
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('Middleware: Allowing request without auth in development mode')
+        return supabaseResponse
+      }
       return supabaseResponse
     }
     user = authUser
   } catch (err) {
     console.error('Middleware: Unexpected auth error:', err)
-    // Allow the request to continue without auth checks
+    // For development, allow the request to continue without auth checks
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Middleware: Allowing request without auth in development mode due to error')
+      return supabaseResponse
+    }
     return supabaseResponse
   }
 

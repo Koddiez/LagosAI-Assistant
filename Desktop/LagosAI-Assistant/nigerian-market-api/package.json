@@ -1,0 +1,43 @@
+{
+  "name": "nigerian-market-api",
+  "version": "1.0.0",
+  "description": "Nigerian Market Data Scraper and API - Provides real-time market prices for Nigerian commodities, currency, and goods",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "test": "node test-scraper.js",
+    "test:scraper": "node test-scraper.js"
+  },
+  "keywords": [
+    "nigeria",
+    "market-data",
+    "scraper",
+    "api",
+    "nairametrics",
+    "forex",
+    "commodities"
+  ],
+  "author": "LagosAI",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0",
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
